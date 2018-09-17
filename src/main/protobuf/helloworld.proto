@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+//import "scalapb/scalapb.proto";
+import "google/api/annotations.proto";
+
+package hw;
+
+/**
+* HelloWorld++ service. Has unary and streaming APIs.
+*/
+service HelloWorld {
+    /** Pass in your name and get back a clever, personalized greeting! */
+    rpc SayHello (ToBeGreeted) returns (Greeting) {
+        option (google.api.http) = {
+            post: "/v1/sayhello"
+          };
+    }
+    /** Pass in a message and have it echoed back with embellishments! */
+    rpc SayAnything (Greeting) returns (Greeting) {
+        option (google.api.http) = {
+            post: "/v1/sayanything"
+          };
+    }
+    /**
+    * Optionally pass in a number N (defaults to 1), and it returns a stream of N random numbers.
+    */
+    rpc GenIntStream (google.protobuf.Int32Value) returns (stream google.protobuf.Int32Value) {
+        option (google.api.http) = {
+            post: "/v1/genIntStream"
+          };
+    }
+    /**
+    * Pass in a stream of numbers (e.g., output from GenIntStream), and it returns a stream of min/max messages,
+    * with an updated message emitted whenever the min and/or max seen so far in the input changes.
+    */
+    rpc IntStreamToStatsStream (stream google.protobuf.Int32Value) returns (stream MinMax) {
+        option (google.api.http) = {
+            post: "/v1/intStreamToStatsStream"
+          };
+    }
+}
+
+message ToBeGreeted {
+    message Person {
+        string name = 1;
+    }
+
+    Person person = 1;
+    google.protobuf.StringValue msg = 2;
+}
+
+message Greeting {
+    string message = 1;
+}
+
+message Nothing {
+}
+
+message MinMax {
+    int32 min = 1;
+    int32 max = 2;
+}

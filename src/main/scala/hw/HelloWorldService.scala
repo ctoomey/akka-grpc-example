@@ -29,14 +29,14 @@ class HelloWorldServiceImpl(materializer: Materializer) extends HelloWorld with 
   }
 
   override def genIntStream(in: Int32Value): Source[Int32Value, NotUsed] = {
-    Source.fromIterator[Int32Value] { () =>
-      (1 to in.value).map { i =>
-        Thread.sleep(500)
+    import scala.concurrent.duration._
+    Source(1 to in.value)
+      .throttle(1, 500.millis)
+      .map { i =>
         val next = Random.nextInt()
         logger.debug(s"nextInt = $next")
         Int32Value(next)
-      }.toIterator
-    }
+      }
   }
 
   override def intStreamToStatsStream(in: Source[Int32Value, NotUsed]): Source[MinMax, NotUsed] = ???
